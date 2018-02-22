@@ -21,6 +21,7 @@ import android.app.Application;
 import com.ivoafsilva.floowchallenge.db.AppDatabase;
 import com.ivoafsilva.floowchallenge.util.AppExecutors;
 import com.ivoafsilva.floowchallenge.util.L;
+import com.squareup.leakcanary.LeakCanary;
 
 /**
  * Android Application class. Used for accessing singletons.
@@ -38,6 +39,13 @@ public class FloowApplication extends Application {
         super.onCreate();
         mAppExecutors = new AppExecutors();
         L.v(TAG, "onCreate");
+
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
+        LeakCanary.install(this);
     }
 
     public AppDatabase getDatabase() {

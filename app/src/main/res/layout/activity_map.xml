@@ -13,4 +13,12 @@
         android:layout_weight="1"
         tools:context="com.ivoafsilva.floowchallenge.ui.MapActivity" />
 
+    <ToggleButton
+        android:id="@+id/tracking_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:textOff="Tracking Off"
+        android:textOn="Tracking On"
+        android:visibility="gone"
+        android:onClick="onTrackingClicked"/>
 </LinearLayout>

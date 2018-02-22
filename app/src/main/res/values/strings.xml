@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FloowChallenge</string>
+    <string name="error_permission_location_required">Location Permission Required</string>
 </resources>
