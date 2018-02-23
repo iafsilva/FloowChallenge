@@ -112,7 +112,7 @@ public class LocationController {
      */
     public void subscribeToLocationEvents(LocationCallback listener) {
         if (listener == null) {
-            L.v(TAG, "subscribeToLocationEvents listener received is null. returning");
+            L.w(TAG, "subscribeToLocationEvents listener IS NULL. Returning.");
             return;
         }
         L.v(TAG, "subscribeToLocationEvents");

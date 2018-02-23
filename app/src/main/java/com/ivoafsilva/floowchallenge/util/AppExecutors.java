@@ -30,17 +30,27 @@ import java.util.concurrent.Executors;
  * webservice requests).
  */
 public class AppExecutors {
-
+    // ------------------------------------ VARIABLES -----------------------------------------
+    /**
+     * Executor to be used on I/O operations
+     */
     private final Executor mDiskIO;
 
+    /**
+     * Executor to be used on network operations
+     */
     private final Executor mNetworkIO;
 
+    /**
+     * Executor to be used when trying to run on the main thread
+     */
     private final Executor mMainThread;
+    // ------------------------------------ METHODS -----------------------------------------
 
     private AppExecutors(Executor diskIO, Executor networkIO, Executor mainThread) {
-        this.mDiskIO = diskIO;
-        this.mNetworkIO = networkIO;
-        this.mMainThread = mainThread;
+        mDiskIO = diskIO;
+        mNetworkIO = networkIO;
+        mMainThread = mainThread;
     }
 
     public AppExecutors() {
@@ -60,6 +70,7 @@ public class AppExecutors {
         return mMainThread;
     }
 
+    // ------------------------------------ STATIC CLASSES -----------------------------------------
     private static class MainThreadExecutor implements Executor {
         private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 

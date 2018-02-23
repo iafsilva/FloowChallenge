@@ -36,15 +36,46 @@ public abstract class AppDatabase extends RoomDatabase {
      */
     private static final String DATABASE_NAME = "floow-location-challenge.db";
 
-    // ------------------------ VARIABLES -------------------------
-
+    /**
+     * The instance of this Singleton
+     */
     private static volatile AppDatabase sInstance;
+    // ------------------------ VARIABLES -------------------------
+    /**
+     * Observable stating whether the database is created
+     */
+    private final MutableLiveData<Boolean> mIsDatabaseCreated = new MutableLiveData<>();
+    // ------------------------------------ METHODS -----------------------------------------
 
+    /**
+     * To be implemented by {@link Room}
+     */
     public abstract JourneyDao journeyDao();
 
+    /**
+     * To be implemented by {@link Room}
+     */
     public abstract StepDao stepDao();
 
-    private final MutableLiveData<Boolean> mIsDatabaseCreated = new MutableLiveData<>();
+    /**
+     * Check whether the database already exists and expose it via {@link #getDatabaseCreated()}
+     */
+    private void updateDatabaseCreated(final Context context) {
+        if (context.getDatabasePath(DATABASE_NAME).exists()) {
+            setDatabaseCreated();
+        }
+    }
+
+    private void setDatabaseCreated() {
+        L.v(TAG, "setDatabaseCreated");
+        mIsDatabaseCreated.postValue(true);
+    }
+
+    public LiveData<Boolean> getDatabaseCreated() {
+        return mIsDatabaseCreated;
+    }
+
+    // ------------------------------------ STATIC METHODS -----------------------------------------
 
     public static AppDatabase getInstance(final Context context, final AppExecutors executors) {
         if (sInstance == null) {
@@ -89,19 +120,8 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     /**
-     * Check whether the database already exists and expose it via {@link #getDatabaseCreated()}
+     * Private method used for inserting pre-populated data
      */
-    private void updateDatabaseCreated(final Context context) {
-        if (context.getDatabasePath(DATABASE_NAME).exists()) {
-            setDatabaseCreated();
-        }
-    }
-
-    private void setDatabaseCreated() {
-        L.v(TAG, "setDatabaseCreated");
-        mIsDatabaseCreated.postValue(true);
-    }
-
     private static void insertData(final AppDatabase database, final JourneyEntity journey,
                                    final List<StepEntity> steps) {
         database.runInTransaction(new Runnable() {
@@ -111,9 +131,5 @@ public abstract class AppDatabase extends RoomDatabase {
                 database.stepDao().insertAll(steps);
             }
         });
-    }
-
-    public LiveData<Boolean> getDatabaseCreated() {
-        return mIsDatabaseCreated;
     }
 }

@@ -20,6 +20,9 @@ import android.arch.persistence.room.TypeConverter;
 
 import java.util.Date;
 
+/**
+ * Converter to be used by Room when saving/loading specific object types.
+ */
 public class DateConverter {
     @TypeConverter
     public static Date toDate(Long timestamp) {

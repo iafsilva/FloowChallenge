@@ -27,12 +27,18 @@ import com.squareup.leakcanary.LeakCanary;
  * Android Application class. Used for accessing singletons.
  */
 public class FloowApplication extends Application {
+    // ------------------------------------ CONSTANTS -----------------------------------------
     /**
      * TAG prefix for logging
      */
     private static final String TAG = FloowApplication.class.getSimpleName();
+    // ------------------------------------ VARIABLES -----------------------------------------
 
+    /**
+     * Executors to be used when performing async operations
+     */
     private AppExecutors mAppExecutors;
+    // ------------------------------------ METHODS -----------------------------------------
 
     @Override
     public void onCreate() {

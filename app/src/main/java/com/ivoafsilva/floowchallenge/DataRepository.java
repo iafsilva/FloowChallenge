@@ -14,49 +14,51 @@ import java.util.List;
 
 
 /**
- * Repository handling the work with journeys and steps
+ * Repository handling all the datasources. Currently only local (Database)
  */
 public class DataRepository {
+    // ------------------------------------ VARIABLES -----------------------------------------
+    /**
+     * The instance of this Singleton
+     */
+    private static volatile DataRepository sInstance;
 
-    private static DataRepository sInstance;
-
+    /**
+     * Local Database to use by this repository
+     */
     private final AppDatabase mDatabase;
 
-    private final AppExecutors appExecutors;
+    /**
+     * Executors to be used when performing async operations
+     */
+    private final AppExecutors mAppExecutors;
 
-    private MediatorLiveData<List<JourneyEntity>> mObservableProducts;
+    /**
+     * Observable containing all the journeys
+     */
+    private MediatorLiveData<List<JourneyEntity>> mObservableJourneys;
 
+    // ------------------------------------ METHODS -----------------------------------------
     private DataRepository(final AppDatabase database, final AppExecutors executors) {
         mDatabase = database;
-        mObservableProducts = new MediatorLiveData<>();
-        appExecutors = executors;
+        mObservableJourneys = new MediatorLiveData<>();
+        mAppExecutors = executors;
 
-        mObservableProducts.addSource(mDatabase.journeyDao().loadAllJourneys(), new Observer<List<JourneyEntity>>() {
+        mObservableJourneys.addSource(mDatabase.journeyDao().loadAllJourneys(), new Observer<List<JourneyEntity>>() {
             @Override
             public void onChanged(@Nullable List<JourneyEntity> journeyEntities) {
                 if (mDatabase.getDatabaseCreated().getValue() != null) {
-                    mObservableProducts.postValue(journeyEntities);
+                    mObservableJourneys.postValue(journeyEntities);
                 }
             }
         });
-    }
-
-    public static DataRepository getInstance(final AppDatabase database, AppExecutors executors) {
-        if (sInstance == null) {
-            synchronized (DataRepository.class) {
-                if (sInstance == null) {
-                    sInstance = new DataRepository(database, executors);
-                }
-            }
-        }
-        return sInstance;
     }
 
     /**
      * Get the list of journeys from the database and get notified when the data changes.
      */
     public LiveData<List<JourneyEntity>> getAllJourneys() {
-        return mObservableProducts;
+        return mObservableJourneys;
     }
 
     /**
@@ -73,8 +75,11 @@ public class DataRepository {
         return mDatabase.stepDao().loadSteps(journeyId);
     }
 
+    /**
+     * Saves a {@link JourneyEntity} async
+     */
     public void saveJourney(final JourneyEntity journeyEntity) {
-        appExecutors.diskIO().execute(new Runnable() {
+        mAppExecutors.diskIO().execute(new Runnable() {
             @Override
             public void run() {
                 mDatabase.journeyDao().insert(journeyEntity);
@@ -82,13 +87,32 @@ public class DataRepository {
         });
     }
 
+    /**
+     * Saves a {@link List} of {@link StepEntity} async
+     */
     public void saveJourneySteps(final List<StepEntity> journeySteps) {
-        appExecutors.diskIO().execute(new Runnable() {
+        mAppExecutors.diskIO().execute(new Runnable() {
             @Override
             public void run() {
                 mDatabase.stepDao().insertAll(journeySteps);
                 journeySteps.clear();
             }
         });
+    }
+
+    // ------------------------------------ STATIC METHODS -----------------------------------------
+
+    /**
+     * Gets the instance of this Singleton
+     */
+    public static DataRepository getInstance(final AppDatabase database, AppExecutors executors) {
+        if (sInstance == null) {
+            synchronized (DataRepository.class) {
+                if (sInstance == null) {
+                    sInstance = new DataRepository(database, executors);
+                }
+            }
+        }
+        return sInstance;
     }
 }

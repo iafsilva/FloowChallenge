@@ -72,6 +72,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Key to be used when saving/retrieving tracking state
      */
     private static final String KEY_TRACKING_ENABLED = "tracking_enabled";
+
     /**
      * Key to be used when saving/retrieving last user locations
      */
@@ -331,7 +332,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         /**
          * Parent activity to access the Map. {@link WeakReference} so it doesn't leak.
          */
-        WeakReference<MapActivity> mapActivityReference;
+        private WeakReference<MapActivity> mapActivityReference;
 
         MyLocationListener(MapActivity activity) {
             mapActivityReference = new WeakReference<>(activity);

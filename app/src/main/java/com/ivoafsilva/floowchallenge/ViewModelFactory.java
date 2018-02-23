@@ -26,29 +26,26 @@ import com.ivoafsilva.floowchallenge.viewmodel.MapViewModel;
 import java.lang.ref.WeakReference;
 
 /**
- *
+ * A Factory for creating and inject dependencies into {@link ViewModel} instances
  */
 public class ViewModelFactory extends ViewModelProvider.NewInstanceFactory {
-
+    // ------------------------------------ CONSTANTS -----------------------------------------
+    /**
+     * The instance of this Singleton
+     */
     private static volatile ViewModelFactory INSTANCE;
 
+    // ------------------------------------ VARIABLES -----------------------------------------
+    /**
+     * Provides access to Application (and lifecycle). {@link WeakReference} so it doesn't leak.
+     */
     private final WeakReference<Application> mApplicationReference;
-
+    /**
+     * Access to Data Repository
+     */
     private final DataRepository mDataRepository;
 
-    public static ViewModelFactory getInstance(Application application) {
-
-        if (INSTANCE == null) {
-            synchronized (ViewModelFactory.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new ViewModelFactory(application,
-                            ((FloowApplication) application).getRepository());
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
+    // ------------------------------------ METHODS -----------------------------------------
     private ViewModelFactory(Application application, DataRepository repository) {
         mApplicationReference = new WeakReference<>(application);
         mDataRepository = repository;
@@ -62,5 +59,19 @@ public class ViewModelFactory extends ViewModelProvider.NewInstanceFactory {
             return (T) new MapViewModel(mApplicationReference.get(), mDataRepository);
         }
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
+    }
+
+    // ------------------------------------ STATIC METHODS -----------------------------------------
+
+    public static ViewModelFactory getInstance(Application application) {
+        if (INSTANCE == null) {
+            synchronized (ViewModelFactory.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new ViewModelFactory(application,
+                            ((FloowApplication) application).getRepository());
+                }
+            }
+        }
+        return INSTANCE;
     }
 }

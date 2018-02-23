@@ -27,7 +27,7 @@ import java.util.List;
  * Generates data to pre-populate the database
  */
 public class DataGenerator {
-
+    // ------------------------------------ CONSTANTS -----------------------------------------
     /**
      * Mock Data for a journey:
      * [0] Id: first_journey
@@ -44,6 +44,8 @@ public class DataGenerator {
      * [2] Altitude: 0
      */
     private static final double[] STEP = new double[]{39.7495, 8.8077, 0};
+
+    // ------------------------------------ STATIC METHODS -----------------------------------------
 
     public static JourneyEntity generateJourney() {
         JourneyEntity journeyEntity = new JourneyEntity();
