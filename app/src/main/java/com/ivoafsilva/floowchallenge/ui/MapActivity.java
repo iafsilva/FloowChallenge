@@ -4,6 +4,7 @@ import android.Manifest;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -11,8 +12,14 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -118,6 +125,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Boolean stating whether the app is tracking device's location
      */
     private boolean mIsTrackingEnabled;
+    private DrawerLayout mDrawerLayout;
 
     // ------------------------------------ METHODS -----------------------------------------
     @Override
@@ -138,9 +146,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             mUserLocations = savedInstanceState.getParcelableArrayList(KEY_USER_LOCATIONS);
             L.v(TAG, "onCreate loaded from bundle: mIsTrackingEnabled=%s, mHasLocationPermission=%s, mUserLocations=%s", mIsTrackingEnabled, mHasLocationPermission, mUserLocations);
         }
-        // Retrieve the content view that renders the map.
-        setContentView(R.layout.activity_map);
 
+        setContentView(R.layout.activity_map);
+        setupToolbar();
+        setupNavigationDrawer();
+        //Get an instance of MapViewModel
         ViewModelFactory factory = ViewModelFactory.getInstance(this.getApplication());
         mMapViewModel = ViewModelProviders.of(this, factory).get(MapViewModel.class);
         // Build the map
@@ -203,19 +213,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     /**
-     * Prompts the user for permission to device's location.
-     */
-    private void getLocationPermission() {
-        if (hasPermissions(getApplicationContext(), PERMISSIONS)) {
-            L.v(TAG, "getLocationPermission permission is already TRUE");
-            mHasLocationPermission = true;
-        } else {
-            L.v(TAG, "getLocationPermission requesting to user");
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_REQUEST_CODE);
-        }
-    }
-
-    /**
      * Callback invoked with Permission Query results
      */
     @Override
@@ -238,16 +235,91 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         updateMyLocationUI();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // Open the navigation drawer when the home icon is selected from the toolbar.
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Styles the toolbar
+     */
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+            ab.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    /**
+     * Styles the NavigationDrawer and sets up onItemSelected
+     */
+    private void setupNavigationDrawer() {
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawerLayout.setStatusBarBackground(R.color.colorPrimaryDark);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(
+                    new NavigationView.OnNavigationItemSelectedListener() {
+                        @Override
+                        public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                            switch (menuItem.getItemId()) {
+                                case R.id.list_navigation_menu_item_journeys:
+                                    Intent intent = new Intent(MapActivity.this, JourneysActivity.class);
+                                    startActivity(intent);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            // Close the navigation drawer when an item is selected.
+                            menuItem.setChecked(true);
+                            mDrawerLayout.closeDrawers();
+                            return true;
+                        }
+                    });
+        }
+    }
+
+    /**
+     * Prompts the user for permission to device's location.
+     */
+    private void getLocationPermission() {
+        if (hasPermissions(getApplicationContext(), PERMISSIONS)) {
+            L.v(TAG, "getLocationPermission permission is already TRUE");
+            mHasLocationPermission = true;
+        } else {
+            L.v(TAG, "getLocationPermission requesting to user");
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+        }
+    }
+
+    /**
+     * Subscribes to location events by {@code mLocationController}
+     */
     private void subscribeToLocationEvents() {
         mLocationListener = new MyLocationListener(this);
         mLocationController.subscribeToLocationEvents(mLocationListener);
     }
 
+    /**
+     * Unsubscribes of location events from {@code mLocationController}
+     */
     private void unsubscribeToLocationEvents() {
         mLocationController.unsubscribeToLocationEvents();
         mLocationListener = null;
     }
 
+    /**
+     * Shows the tracking toggle button
+     */
     public void showTrackingToggle() {
         if (mHasLocationPermission) {
             findViewById(R.id.tracking_toggle).setVisibility(View.VISIBLE);

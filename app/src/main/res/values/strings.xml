@@ -3,4 +3,7 @@
     <string name="error_permission_location_required">Location Permission Required</string>
     <string name="toggle_tracking_off">Tracking Off</string>
     <string name="toggle_tracking_on">Tracking On</string>
+    <string name="navigation_view_header_title">Floow Challenge</string>
+    <string name="list_title_journeys">Journeys</string>
+    <string name="loading_journeys">Loading Journeys…</string>
 </resources>
