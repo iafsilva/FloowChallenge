@@ -18,10 +18,10 @@ public interface JourneyDao {
     LiveData<List<JourneyEntity>> loadAllJourneys();
 
     @Query("SELECT * FROM journeys WHERE id = :journeyId")
-    LiveData<JourneyEntity> loadJourney(int journeyId);
+    LiveData<JourneyEntity> loadJourney(String journeyId);
 
     @Query("SELECT * FROM journeys WHERE id = :journeyId")
-    JourneyEntity loadJourneySync(int journeyId);
+    JourneyEntity loadJourneySync(String journeyId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(JourneyEntity journey);

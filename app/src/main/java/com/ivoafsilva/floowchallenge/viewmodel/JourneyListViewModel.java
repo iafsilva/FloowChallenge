@@ -14,14 +14,9 @@ import com.ivoafsilva.floowchallenge.db.entity.JourneyEntity;
 import java.util.List;
 
 /**
- * {@link ViewModel} for the {@link com.ivoafsilva.floowchallenge.ui.JourneysActivity}
+ * {@link ViewModel} for the {@link com.ivoafsilva.floowchallenge.ui.JourneyListFragment}
  */
-public class JourneysViewModel extends AndroidViewModel {
-    // ------------------------------------ CONSTANTS -----------------------------------------
-    /**
-     * TAG prefix for logging
-     */
-    private static final String TAG = JourneysViewModel.class.getSimpleName();
+public class JourneyListViewModel extends AndroidViewModel {
     // ------------------------------------ VARIABLES -----------------------------------------
     /**
      * Provides access to our Repository to laod/save
@@ -34,8 +29,8 @@ public class JourneysViewModel extends AndroidViewModel {
     private final MediatorLiveData<List<JourneyEntity>> mObservableJourneys;
 
     // ------------------------------------ METHODS -----------------------------------------
-    public JourneysViewModel(Application context,
-                             DataRepository dataRepository) {
+    public JourneyListViewModel(Application context,
+                                DataRepository dataRepository) {
         super(context);
         mDataRepository = dataRepository;
 

@@ -64,14 +64,14 @@ public class DataRepository {
     /**
      * Get a journey from the database and get notified when the data changes.
      */
-    public LiveData<JourneyEntity> loadJourney(final int journeyId) {
+    public LiveData<JourneyEntity> loadJourney(final String journeyId) {
         return mDatabase.journeyDao().loadJourney(journeyId);
     }
 
     /**
      * Get the steps of a journey from the database and get notified when the data changes.
      */
-    public LiveData<List<StepEntity>> loadSteps(final int journeyId) {
+    public LiveData<List<StepEntity>> loadSteps(final String journeyId) {
         return mDatabase.stepDao().loadSteps(journeyId);
     }
 

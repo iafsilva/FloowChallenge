@@ -88,6 +88,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     // ------------------------------------ VARIABLES -----------------------------------------
 
     /**
+     * The Drawer Layout of this activity
+     */
+    private DrawerLayout mDrawerLayout;
+
+    /**
      * The {@link AndroidViewModel} to use in this Activity
      */
     private MapViewModel mMapViewModel;
@@ -125,7 +130,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Boolean stating whether the app is tracking device's location
      */
     private boolean mIsTrackingEnabled;
-    private DrawerLayout mDrawerLayout;
 
     // ------------------------------------ METHODS -----------------------------------------
     @Override
@@ -200,7 +204,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         L.v(TAG, "onMapReady");
         mMap = googleMap;
-        mPolyline = googleMap.addPolyline(new PolylineOptions());
+        mPolyline = mMap.addPolyline(new PolylineOptions());
         if (!mUserLocations.isEmpty()) {
             mPolyline.setPoints(mUserLocations);
         }

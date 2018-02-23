@@ -6,4 +6,7 @@
     <string name="navigation_view_header_title">Floow Challenge</string>
     <string name="list_title_journeys">Journeys</string>
     <string name="loading_journeys">Loading Journeys…</string>
+    <string name="lbl_journey_start_time">Start Time:\t</string>
+    <string name="lbl_journey_end_time">End Time:\t</string>
+    <string name="journey_name_lbl">Journey:</string>
 </resources>

@@ -15,10 +15,10 @@ import java.util.List;
 public interface StepDao {
 
     @Query("SELECT * FROM steps WHERE journeyId = :journeyId")
-    LiveData<List<StepEntity>> loadSteps(int journeyId);
+    LiveData<List<StepEntity>> loadSteps(String journeyId);
 
     @Query("SELECT * FROM steps WHERE journeyId = :journeyId")
-    List<StepEntity> loadStepsSync(int journeyId);
+    List<StepEntity> loadStepsSync(String journeyId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<StepEntity> steps);

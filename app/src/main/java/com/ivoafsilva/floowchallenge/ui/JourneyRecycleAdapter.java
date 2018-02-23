@@ -80,7 +80,7 @@ public class JourneyRecycleAdapter extends RecyclerView.Adapter<JourneyRecycleAd
 
     @Override
     public void onBindViewHolder(JourneyViewHolder holder, int position) {
-        holder.bindJourney(mJourneysList.get(position));
+        holder.bindJourney(mJourneysList.get(position), mJourneyClickCallback);
     }
 
     @Override
@@ -93,20 +93,20 @@ public class JourneyRecycleAdapter extends RecyclerView.Adapter<JourneyRecycleAd
     static class JourneyViewHolder extends RecyclerView.ViewHolder {
 
         TextView mName;
-        TextView mStartTime;
-        TextView mEndTime;
 
         JourneyViewHolder(View view) {
             super(view);
-            mName = view.findViewById(R.id.name);
-            mStartTime = view.findViewById(R.id.startTime);
-            mEndTime = view.findViewById(R.id.endTime);
+            mName = view.findViewById(R.id.journey_name);
         }
 
-        void bindJourney(Journey journey) {
+        void bindJourney(final Journey journey, final JourneyClickCallback mJourneyClickCallback) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mJourneyClickCallback.onClick(journey);
+                }
+            });
             mName.setText(journey.getName());
-            mStartTime.setText(journey.getStartTime().toString());
-            mEndTime.setText(journey.getEndTime().toString());
         }
     }
 }

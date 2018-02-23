@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/journey_fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/place_autocomplete_search_hint"
-    android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/loading_tv"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical|center_horizontal"
-        android:text="@string/loading_journeys"
-        android:textAlignment="center"
-        android:visibility="visible" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/journeys_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
-
-</LinearLayout>
+    android:orientation="vertical" />

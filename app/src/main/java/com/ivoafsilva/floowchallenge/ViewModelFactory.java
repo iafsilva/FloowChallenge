@@ -21,7 +21,7 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
-import com.ivoafsilva.floowchallenge.viewmodel.JourneysViewModel;
+import com.ivoafsilva.floowchallenge.viewmodel.JourneyListViewModel;
 import com.ivoafsilva.floowchallenge.viewmodel.MapViewModel;
 
 import java.lang.ref.WeakReference;
@@ -58,9 +58,9 @@ public class ViewModelFactory extends ViewModelProvider.NewInstanceFactory {
         if (modelClass.isAssignableFrom(MapViewModel.class)) {
             //noinspection unchecked
             return (T) new MapViewModel(mApplicationReference.get(), mDataRepository);
-        } else if (modelClass.isAssignableFrom(JourneysViewModel.class)) {
+        } else if (modelClass.isAssignableFrom(JourneyListViewModel.class)) {
             //noinspection unchecked
-            return (T) new JourneysViewModel(mApplicationReference.get(), mDataRepository);
+            return (T) new JourneyListViewModel(mApplicationReference.get(), mDataRepository);
         }
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
     }
