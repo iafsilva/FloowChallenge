@@ -2,18 +2,21 @@ package com.ivoafsilva.floowchallenge.db.entity;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 import com.ivoafsilva.floowchallenge.model.Journey;
 
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Entity to represent a {@link Journey}
  */
 @Entity(tableName = "journeys")
 public class JourneyEntity implements Journey {
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+    @PrimaryKey
+    @NonNull
+    private String id;
     private String name;
     private Date startTime;
     private Date endTime;
@@ -21,29 +24,32 @@ public class JourneyEntity implements Journey {
     public JourneyEntity() {
     }
 
-    public JourneyEntity(int id, String name, Date startTime, Date endTime) {
+    public JourneyEntity(String name, Date startTime, Date endTime) {
+        this(UUID.randomUUID().toString(), name, startTime, endTime);
+    }
+
+    public JourneyEntity(Journey journey) {
+        this(journey.getId(), journey.getName(), journey.getStartTime(), journey.getEndTime());
+    }
+
+    private JourneyEntity(@NonNull String id, String name, Date startTime, Date endTime) {
         this.id = id;
         this.name = name;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public JourneyEntity(Journey journey) {
-        this.id = journey.getId();
-        this.name = journey.getName();
-        this.startTime = journey.getStartTime();
-        this.endTime = journey.getEndTime();
-    }
-
+    @NonNull
     @Override
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
 
+    @NonNull
     @Override
     public String getName() {
         return name;

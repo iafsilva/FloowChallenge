@@ -1,11 +1,14 @@
 package com.ivoafsilva.floowchallenge.ui;
 
 import android.Manifest;
+import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -21,12 +24,19 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.ivoafsilva.floowchallenge.BuildConfig;
 import com.ivoafsilva.floowchallenge.R;
+import com.ivoafsilva.floowchallenge.ViewModelFactory;
 import com.ivoafsilva.floowchallenge.logic.LocationController;
 import com.ivoafsilva.floowchallenge.util.L;
+import com.ivoafsilva.floowchallenge.util.LocationUtils;
+import com.ivoafsilva.floowchallenge.viewmodel.MapViewModel;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -62,13 +72,31 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Key to be used when saving/retrieving tracking state
      */
     private static final String KEY_TRACKING_ENABLED = "tracking_enabled";
+    /**
+     * Key to be used when saving/retrieving last user locations
+     */
+    private static final String KEY_USER_LOCATIONS = "user_locations";
 
     // ------------------------------------ VARIABLES -----------------------------------------
 
     /**
+     * The {@link AndroidViewModel} to use in this Activity
+     */
+    private MapViewModel mMapViewModel;
+    /**
      * Map that will be shown to user
      */
     private GoogleMap mMap;
+
+    /**
+     * Polyline to be used when drawing user's path on {@code mMap}
+     */
+    private Polyline mPolyline;
+
+    /**
+     * List of coordinates to be drawn in the map.
+     */
+    private List<LatLng> mUserLocations;
 
     /**
      * Listener for location updates
@@ -99,18 +127,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls().penaltyLog().build());
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectActivityLeaks().detectLeakedClosableObjects().detectLeakedRegistrationObjects().penaltyLog().build());
         }
-
-        // Retrieve location and tracking state from saved instance state.
+        //init vars
+        mLocationController = new LocationController(this);
+        mUserLocations = new ArrayList<>();
+        // Retrieve saved instance state.
         if (savedInstanceState != null) {
             mIsTrackingEnabled = savedInstanceState.getBoolean(KEY_TRACKING_ENABLED, false);
             mHasLocationPermission = savedInstanceState.getBoolean(KEY_HAS_PERMISSIONS, false);
-            L.v(TAG, "onCreate loaded from bundle: mIsTrackingEnabled=%s, mHasLocationPermission=%s", mIsTrackingEnabled, mHasLocationPermission);
+            mUserLocations = savedInstanceState.getParcelableArrayList(KEY_USER_LOCATIONS);
+            L.v(TAG, "onCreate loaded from bundle: mIsTrackingEnabled=%s, mHasLocationPermission=%s, mUserLocations=%s", mIsTrackingEnabled, mHasLocationPermission, mUserLocations);
         }
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_map);
-        //init
-        mLocationController = new LocationController(this);
 
+        ViewModelFactory factory = ViewModelFactory.getInstance(this.getApplication());
+        mMapViewModel = ViewModelProviders.of(this, factory).get(MapViewModel.class);
         // Build the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -122,7 +153,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         super.onResume();
-        //if tracking was enabled before, keep it
+        //if tracking was enabled before, keep it that way
         if (mHasLocationPermission && mIsTrackingEnabled) {
             subscribeToLocationEvents();
         }
@@ -131,7 +162,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onPause() {
         super.onPause();
-        //if tracking was enabled, unsubscribe because we're not on foreground
+        //if tracking was enabled, unsubscribe
         if (mHasLocationPermission && mIsTrackingEnabled) {
             unsubscribeToLocationEvents();
         }
@@ -146,7 +177,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (mMap != null) {
             outState.putBoolean(KEY_TRACKING_ENABLED, mIsTrackingEnabled);
             outState.putBoolean(KEY_HAS_PERMISSIONS, mHasLocationPermission);
-            L.v(TAG, "onSaveInstanceState saved: mIsTrackingEnable=%s, mHasLocationPermission=%s", mIsTrackingEnabled, mHasLocationPermission);
+            outState.putParcelableArrayList(KEY_USER_LOCATIONS, (ArrayList<? extends Parcelable>) mUserLocations);
+            L.v(TAG, "onSaveInstanceState saved: mIsTrackingEnable=%s, mHasLocationPermission=%s, mUserLocations=%s", mIsTrackingEnabled, mHasLocationPermission, mUserLocations);
         }
     }
 
@@ -155,8 +187,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
         L.v(TAG, "onMapReady");
+        mMap = googleMap;
+        mPolyline = googleMap.addPolyline(new PolylineOptions());
+        if (!mUserLocations.isEmpty()) {
+            mPolyline.setPoints(mUserLocations);
+        }
         // Prompt the user for permission.
         getLocationPermission();
         // Show button to track device's location
@@ -241,17 +277,32 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     /**
      * Function called when the Tracking toggle button is pressed.
      */
-    public void onTrackingClicked(View view) {
+    public void onTrackingToggleClicked(View view) {
         mIsTrackingEnabled = ((ToggleButton) view).isChecked();
         if (mIsTrackingEnabled) {
             subscribeToLocationEvents();
+            mMapViewModel.startJourney();
         } else {
+            mMapViewModel.endJourney();
+            mUserLocations.clear();
             unsubscribeToLocationEvents();
         }
     }
 
-    public GoogleMap getMap() {
+    private GoogleMap getMap() {
         return mMap;
+    }
+
+    private MapViewModel getMapViewModel() {
+        return mMapViewModel;
+    }
+
+    public Polyline getPolyline() {
+        return mPolyline;
+    }
+
+    public List<LatLng> getUserLocations() {
+        return mUserLocations;
     }
 
     // ------------------------------------ STATIC METHODS -----------------------------------------
@@ -295,14 +346,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
             L.v(TAG, "onLocationResult %s", locationResult.getLocations());
 
-//            for (Location location : locationResult.getLocations()) {
-//                if (location == null) {
-//                    continue;
-//                }
-//                //TODO polyline stuff goes here
-//            }
+            for (Location location : locationResult.getLocations()) {
+                if (location == null) {
+                    continue;
+                }
+                //Add location to ViewModel to be persisted
+                mapActivity.getMapViewModel().addJourneyStep(location);
+                //Add location to be drawn as the user's path
+                mapActivity.getUserLocations().add(LocationUtils.toLatLng(location));
+            }
 
             Location lastLocation = locationResult.getLastLocation();
+            mapActivity.getPolyline().setPoints(mapActivity.getUserLocations());
             mapActivity.getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(
                     new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), DEFAULT_ZOOM));
         }

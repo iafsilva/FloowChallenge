@@ -7,7 +7,7 @@ import java.util.Date;
  */
 
 public interface Journey {
-    int getId();
+    String getId();
 
     String getName();
 

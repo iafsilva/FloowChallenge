@@ -6,9 +6,9 @@ import java.util.Date;
  * Interface for a Step Model
  */
 public interface Step {
-    int getId();
+    String getId();
 
-    int getJourneyId();
+    String getJourneyId();
 
     double getLatitude();
 

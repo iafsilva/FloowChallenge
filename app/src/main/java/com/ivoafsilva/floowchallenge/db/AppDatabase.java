@@ -15,7 +15,6 @@ import com.ivoafsilva.floowchallenge.db.dao.JourneyDao;
 import com.ivoafsilva.floowchallenge.db.dao.StepDao;
 import com.ivoafsilva.floowchallenge.db.entity.JourneyEntity;
 import com.ivoafsilva.floowchallenge.db.entity.StepEntity;
-import com.ivoafsilva.floowchallenge.ui.MapActivity;
 import com.ivoafsilva.floowchallenge.util.AppExecutors;
 import com.ivoafsilva.floowchallenge.util.L;
 
@@ -30,7 +29,7 @@ public abstract class AppDatabase extends RoomDatabase {
     /**
      * TAG prefix for logging
      */
-    private static final String TAG = MapActivity.class.getSimpleName();
+    private static final String TAG = AppDatabase.class.getSimpleName();
 
     /**
      * The name of the database
@@ -99,6 +98,7 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     private void setDatabaseCreated() {
+        L.v(TAG, "setDatabaseCreated");
         mIsDatabaseCreated.postValue(true);
     }
 

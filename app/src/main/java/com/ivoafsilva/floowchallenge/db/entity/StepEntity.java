@@ -5,10 +5,12 @@ import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.location.Location;
+import android.support.annotation.NonNull;
 
 import com.ivoafsilva.floowchallenge.model.Step;
 
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Entity to represent a {@link Step}
@@ -21,9 +23,11 @@ import java.util.Date;
                         onDelete = ForeignKey.CASCADE)},
         indices = {@Index(value = "journeyId")})
 public class StepEntity implements Step {
-    @PrimaryKey(autoGenerate = true)
-    private int id;
-    private int journeyId;
+    @NonNull
+    @PrimaryKey
+    private String id;
+    @NonNull
+    private String journeyId;
     private double latitude;
     private double longitude;
     private double altitude;
@@ -32,7 +36,19 @@ public class StepEntity implements Step {
     public StepEntity() {
     }
 
-    public StepEntity(int id, int journeyId, double latitude, double longitude, double altitude, Date timestamp) {
+    public StepEntity(String journeyId, Location location) {
+        this(UUID.randomUUID().toString(), journeyId, location.getLatitude(), location.getLongitude(), location.getAltitude(), new Date(location.getTime()));
+    }
+
+    public StepEntity(Step step) {
+        this(step.getId(), step.getJourneyId(), step.getLatitude(), step.getLongitude(), step.getAltitude(), step.getTimestamp());
+    }
+
+    public StepEntity(@NonNull String journeyId, double latitude, double longitude, double altitude, Date timestamp) {
+        this(UUID.randomUUID().toString(), journeyId, latitude, longitude, altitude, timestamp);
+    }
+
+    private StepEntity(@NonNull String id, @NonNull String journeyId, double latitude, double longitude, double altitude, Date timestamp) {
         this.id = id;
         this.journeyId = journeyId;
         this.latitude = latitude;
@@ -41,40 +57,23 @@ public class StepEntity implements Step {
         this.timestamp = timestamp;
     }
 
-    public StepEntity(Step step) {
-        this.id = step.getId();
-        this.journeyId = step.getJourneyId();
-        this.latitude = step.getLatitude();
-        this.longitude = step.getLongitude();
-        this.altitude = step.getAltitude();
-        this.timestamp = step.getTimestamp();
-    }
-
-    public StepEntity(int journeyId, Location location) {
-        this.id = 0;
-        this.journeyId = journeyId;
-        this.latitude = location.getLatitude();
-        this.longitude = location.getLongitude();
-        this.altitude = location.getAltitude();
-        this.timestamp = new Date(location.getTime());
-    }
-
-
+    @NonNull
     @Override
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
 
+    @NonNull
     @Override
-    public int getJourneyId() {
+    public String getJourneyId() {
         return journeyId;
     }
 
-    public void setJourneyId(int journeyId) {
+    public void setJourneyId(@NonNull String journeyId) {
         this.journeyId = journeyId;
     }
 

@@ -53,6 +53,6 @@ public class FloowApplication extends Application {
     }
 
     public DataRepository getRepository() {
-        return DataRepository.getInstance(getDatabase());
+        return DataRepository.getInstance(getDatabase(), mAppExecutors);
     }
 }

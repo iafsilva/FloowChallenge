@@ -19,7 +19,7 @@ package com.ivoafsilva.floowchallenge.db;
 import com.ivoafsilva.floowchallenge.db.entity.JourneyEntity;
 import com.ivoafsilva.floowchallenge.db.entity.StepEntity;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -30,25 +30,24 @@ public class DataGenerator {
 
     /**
      * Mock Data for a journey:
-     * [0] Id: 1
+     * [0] Id: first_journey
      * [1] Name: First Journey
      * [2] StartTime: 02/20/2018 @ 2:00pm (UTC)
      * [3] EndTime: 02/20/2018 @ 3:00pm (UTC)
      */
-    private static final String[] JOURNEY = new String[]{"1", "First Journey", "1519135200", "1519138800000"};
+    private static final String[] JOURNEY = new String[]{"first_journey", "First Journey", "1519135200000", "1519138800000"};
 
     /**
-     * Mock Data for a step - Leiria, Portugal
-     * [0] Longitude: 39.7495 - 53.3872
-     * [1] Latitude: 8.8077 - -1.4636
+     * Mock Data for a step
+     * [0] Latitude: 53.3872
+     * [1] Longitude: -1.4636
      * [2] Altitude: 0
      */
     private static final double[] STEP = new double[]{39.7495, 8.8077, 0};
 
-
     public static JourneyEntity generateJourney() {
         JourneyEntity journeyEntity = new JourneyEntity();
-        journeyEntity.setId(Integer.parseInt(JOURNEY[0]));
+        journeyEntity.setId(JOURNEY[0]);
         journeyEntity.setName(JOURNEY[1]);
         journeyEntity.setStartTime(new Date(Long.parseLong(JOURNEY[2])));
         journeyEntity.setEndTime(new Date(Long.parseLong(JOURNEY[3])));
@@ -56,30 +55,7 @@ public class DataGenerator {
     }
 
     public static List<StepEntity> generateStepsForJourney(final JourneyEntity journeyEntity) {
-        //create a step for every 2.5 seconds
-        int timeIncrement = 2500;
-        double spaceIncrement = 0.5;
-
-        long journeyEnd = journeyEntity.getEndTime().getTime();
-        long chronometer = journeyEntity.getStartTime().getTime();
-        double locationLongitude = STEP[0];
-        double locationLatitude = STEP[1];
-
-        List<StepEntity> steps = new ArrayList<>();
-        for (int i = 0; chronometer <= journeyEnd; i++) {
-            StepEntity stepEntity = new StepEntity(0,
-                    journeyEntity.getId(),
-                    locationLatitude,
-                    locationLongitude,
-                    STEP[2],
-                    new Date(chronometer));
-            steps.add(stepEntity);
-            //increment counters
-            chronometer += timeIncrement;
-            locationLongitude += spaceIncrement;
-            locationLatitude -= spaceIncrement;
-        }
-
-        return steps;
+        StepEntity stepEntity = new StepEntity(journeyEntity.getId(), STEP[0], STEP[1], STEP[2], new Date(Long.parseLong(JOURNEY[2]) + 10000));
+        return Collections.singletonList(stepEntity);
     }
 }

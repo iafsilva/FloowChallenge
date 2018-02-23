@@ -17,8 +17,8 @@
         android:id="@+id/tracking_toggle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:textOff="Tracking Off"
-        android:textOn="Tracking On"
+        android:textOff="@string/toggle_tracking_off"
+        android:textOn="@string/toggle_tracking_on"
         android:visibility="gone"
-        android:onClick="onTrackingClicked"/>
+        android:onClick="onTrackingToggleClicked" />
 </LinearLayout>
